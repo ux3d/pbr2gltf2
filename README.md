@@ -16,6 +16,7 @@ Usage: `pbr2gltf2.exe [folder]`
 ## Supported PBR packages
 
 * [https://cc0textures.com/](https://cc0textures.com/) PBR Materials For Anyone And Any Purpose!
+* [https://www.cgbookcase.com/](https://www.cgbookcase.com/) Free PBR Textures
 
 
 ## Import the generated glTF

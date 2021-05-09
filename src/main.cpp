@@ -76,6 +76,55 @@ bool saveFile(const std::string& output, const std::string& filename)
 	return true;
 }
 
+size_t gatherStem(const std::string& stem)
+{
+	size_t result = std::string::npos;
+
+	result = stem.find("_Color");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_Base_Color");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_Opacity");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_Metallic");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_Roughness");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_AO");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_Normal");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	return result;
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc <= 1)
@@ -107,12 +156,16 @@ int main(int argc, char *argv[])
 	bool init = true;
 
 	bool writeBaseColor = false;
+	bool writeOpacity = false;
+	bool writeMetallic = false;
+	bool writeRoughness = false;
+	bool writeOcclusion = false;
+	bool writeNormal = false;
+
 	ImageDataResource baseColorImage;
 
-	bool writeMetallicRoughness = false;
 	ImageDataResource metallicRoughnessImage;
 
-	bool writeNormal = false;
 	ImageDataResource normalImage;
 
 	std::string path = argv[1];
@@ -133,7 +186,7 @@ int main(int argc, char *argv[])
 
     	if (init)
     	{
-    		auto it = decomposedPath.stem.find("_");
+    		auto it = gatherStem(decomposedPath.stem);
     		if (it != std::string::npos)
     		{
     			stem = decomposedPath.stem.substr(0, it);
@@ -192,8 +245,8 @@ int main(int argc, char *argv[])
 
     	//
 
-    	auto hasBaseColor = filename.find("_Color.");
-    	if (hasBaseColor != std::string::npos)
+    	bool hasBaseColor = ((filename.find("_Color.") != std::string::npos) || (filename.find("_Base_Color.") != std::string::npos));
+    	if (hasBaseColor)
     	{
 			for (size_t y = 0; y < baseColorImage.height; y++)
 			{
@@ -205,11 +258,11 @@ int main(int argc, char *argv[])
 				}
 			}
 
-    		writeBaseColor = true;
+			writeBaseColor = true;
     	}
 
-    	auto hasOpacity = filename.find("_Opacity.");
-    	if (hasOpacity != std::string::npos)
+    	bool hasOpacity = (filename.find("_Opacity.") != std::string::npos);
+    	if (hasOpacity)
     	{
 			for (size_t y = 0; y < baseColorImage.height; y++)
 			{
@@ -222,11 +275,11 @@ int main(int argc, char *argv[])
 			material["alphaMode"] = "MASK";
 			material["doubleSided"] = true;
 
-			writeBaseColor = true;
+			writeOpacity = true;
     	}
 
-    	auto hasMetallic = filename.find("_Metallic.");
-    	if (hasMetallic != std::string::npos)
+    	bool hasMetallic = (filename.find("_Metallic.") != std::string::npos);
+    	if (hasMetallic)
     	{
 			for (size_t y = 0; y < metallicRoughnessImage.height; y++)
 			{
@@ -236,11 +289,11 @@ int main(int argc, char *argv[])
 				}
 			}
 
-    		writeMetallicRoughness = true;
+			writeMetallic = true;
     	}
 
-    	auto hasRoughness = filename.find("_Roughness.");
-    	if (hasRoughness != std::string::npos)
+    	bool hasRoughness = (filename.find("_Roughness.") != std::string::npos);
+    	if (hasRoughness)
     	{
 			for (size_t y = 0; y < metallicRoughnessImage.height; y++)
 			{
@@ -250,11 +303,25 @@ int main(int argc, char *argv[])
 				}
 			}
 
-    		writeMetallicRoughness = true;
+			writeRoughness = true;
     	}
 
-    	auto hasNormal = filename.find("_Normal.");
-    	if (hasNormal != std::string::npos)
+    	bool hasOcclusion = (filename.find("_AO.") != std::string::npos);
+    	if (hasOcclusion)
+    	{
+			for (size_t y = 0; y < metallicRoughnessImage.height; y++)
+			{
+				for (size_t x = 0; x < metallicRoughnessImage.width; x++)
+				{
+					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels  + x * metallicRoughnessImage.channels + 0] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels  + x * imageDataResource.channels + 0];
+				}
+			}
+
+			writeOcclusion = true;
+    	}
+
+    	bool hasNormal = (filename.find("_Normal.") != std::string::npos);
+    	if (hasNormal)
     	{
 			for (size_t y = 0; y < normalImage.height; y++)
 			{
@@ -266,11 +333,11 @@ int main(int argc, char *argv[])
 				}
 			}
 
-    		writeNormal = true;
+			writeNormal = true;
     	}
     }
 
-    if (writeBaseColor)
+    if (writeBaseColor || writeOpacity)
     {
 		std::string imagePath = stem + "_baseColor.png";
 		stbi_write_png(imagePath.c_str(), baseColorImage.width, baseColorImage.height, baseColorImage.channels, baseColorImage.pixels.data(), 0);
@@ -291,7 +358,7 @@ int main(int argc, char *argv[])
 		images.push_back(image);
     }
 
-    if (writeMetallicRoughness)
+    if (writeMetallic || writeRoughness || writeOcclusion)
     {
 		std::string imagePath = stem + "_metallicRoughness.png";
 		stbi_write_png(imagePath.c_str(), metallicRoughnessImage.width, metallicRoughnessImage.height, metallicRoughnessImage.channels, metallicRoughnessImage.pixels.data(), 0);
@@ -302,6 +369,14 @@ int main(int argc, char *argv[])
 		metallicRoughnessTexture["index"] = index;
 
 		pbrMetallicRoughness["metallicRoughnessTexture"] = metallicRoughnessTexture;
+
+		if (writeOcclusion)
+		{
+			json occlusionTexture = json::object();
+			occlusionTexture["index"] = index;
+
+			material["occlusionTexture"] = occlusionTexture;
+		}
 
 		json texture = json::object();
 		texture["source"] = index;

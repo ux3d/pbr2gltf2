@@ -33,3 +33,5 @@
 *.gltf
 *.png
 .settings
+/Debug/
+/Release/
