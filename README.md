@@ -9,8 +9,9 @@ Usage: `pbr2gltf2.exe [folder]`
 
 ## Software Requirements
 
-* C/C++ 17 compiler e.g. gcc
+* C/C++ 17 compiler e.g. gcc or Visual C++
 * [Eclipse IDE for C/C++ Developers](https://www.eclipse.org/downloads/packages/release/2021-03/r/eclipse-ide-cc-developers)  
+* [CMake](https://cmake.org/)  
 
 
 ## Supported PBR packages
