@@ -272,9 +272,6 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			material["alphaMode"] = "MASK";
-			material["doubleSided"] = true;
-
 			writeOpacity = true;
     	}
 
@@ -349,6 +346,16 @@ int main(int argc, char *argv[])
 
 		pbrMetallicRoughness["baseColorTexture"] = baseColorTexture;
 
+		if (!writeOpacity)
+		{
+			// Do nothing
+		}
+		else
+		{
+			material["alphaMode"] = "MASK";
+			material["doubleSided"] = true;
+		}
+
 		json texture = json::object();
 		texture["source"] = index;
 		textures.push_back(texture);
@@ -368,9 +375,22 @@ int main(int argc, char *argv[])
 		json metallicRoughnessTexture = json::object();
 		metallicRoughnessTexture["index"] = index;
 
+		if (!writeMetallic)
+		{
+			pbrMetallicRoughness["metallicFactor"] = 0.0f;
+		}
+		if (!writeRoughness)
+		{
+			pbrMetallicRoughness["roughnessFactor"] = 0.0f;
+		}
+
 		pbrMetallicRoughness["metallicRoughnessTexture"] = metallicRoughnessTexture;
 
-		if (writeOcclusion)
+		if (!writeOcclusion)
+		{
+			// Do nothing
+		}
+		else
 		{
 			json occlusionTexture = json::object();
 			occlusionTexture["index"] = index;
