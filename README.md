@@ -2,7 +2,7 @@
 
 # PBR To glTF 2.0 converter
 
-pbr2gltf2 is a command line tool for converting PBR images to a glTF 2.0 material. The tool is detecting depending on the filename, which PBR information is stored. It swizzles the images and does reassign the channels to a glTF 2.0 texture. The tools stores the images plus a minimal, valid glTF 2.0 file containing the material, textures and images.  
+pbr2gltf2 is a command line tool for converting PBR images to a glTF 2.0 material. The tool is detecting depending on the filename, which PBR information is stored. It swizzles the images and does reassign the channels to a glTF 2.0 image. The tool stores the images plus a minimal, valid glTF 2.0 file containing the required material, textures and images.  
 
 Usage: `pbr2gltf2.exe [folder]`
 
@@ -10,7 +10,7 @@ Usage: `pbr2gltf2.exe [folder]`
 ## Software Requirements
 
 * C/C++ 17 compiler e.g. gcc or Visual C++
-* [Eclipse IDE for C/C++ Developers](https://www.eclipse.org/downloads/packages/release/2021-03/r/eclipse-ide-cc-developers)  
+* [Eclipse IDE for C/C++ Developers](https://www.eclipse.org/downloads/packages/release/2021-03/r/eclipse-ide-cc-developers) or  
 * [CMake](https://cmake.org/)  
 
 
@@ -22,5 +22,6 @@ Usage: `pbr2gltf2.exe [folder]`
 
 ## Import the generated glTF
 
-Import the generated glTF in e.g. [Gestaltor](https://gestaltor.io/).  
+Import the generated glTF in e.g. [Gestaltor](https://gestaltor.io/) and reuse in your scene.  
 
+A short tutorial can be found here: [Gestaltor - How to rescale a texture](https://docs.gestaltor.io/#rescale-a-texture).  
