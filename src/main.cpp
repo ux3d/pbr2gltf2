@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 
 	json asset = json::object();
 	asset["version"] = "2.0";
-	asset["generator"] = "pbr2glTF by UX3D";
+	asset["generator"] = "pbr2gltf2 by UX3D";
 
 	glTF["asset"] = asset;
 
