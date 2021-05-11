@@ -4,7 +4,10 @@
 
 pbr2gltf2 is a command line tool for converting PBR images to a glTF 2.0 material. The tool is detecting depending on the filename, which PBR information is stored. It swizzles the images and does reassign the channels to a glTF 2.0 image. The tool stores the images plus a minimal, valid glTF 2.0 file containing the required material, textures and images.  
 
-Usage: `pbr2gltf2.exe [folder]`
+Usage: `pbr2gltf2.exe folder [-m 1.0 -r 1.0]`
+
+`-m 1.0` Default metallic factor value, if no metallic image was found.  
+`-r 1.0` Default roughness factor value, if no roughness image was found.  
 
 
 ## Software Requirements
@@ -25,3 +28,4 @@ Usage: `pbr2gltf2.exe [folder]`
 Import the generated glTF in e.g. [Gestaltor](https://gestaltor.io/) and reuse in your scene.  
 
 A short tutorial can be found here: [Gestaltor - How to rescale a texture](https://docs.gestaltor.io/#rescale-a-texture).  
+

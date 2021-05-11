@@ -26,6 +26,13 @@ struct ImageDataResource {
 	uint32_t channels = 0;
 };
 
+float clampf(float x, float minVal, float maxVal)
+{
+	float t = (x > minVal) ? x : minVal;
+
+	return (t < maxVal) ? t : maxVal;
+}
+
 void decomposePath(DecomposedPath& decomposedPath, const std::string& path)
 {
 	std::filesystem::path filesystemPath(path);
@@ -129,10 +136,29 @@ int main(int argc, char *argv[])
 {
 	if (argc <= 1)
 	{
-		printf("Usage: pbr2gltf2 folder\n");
+		printf("Usage: pbr2gltf2 folder [-m 1.0 -r 1.0]\n");
 
 		return 0;
 	}
+
+	//
+
+	float defaultMetallicFactor = 1.0f;
+	float defaultRoughnessFactor = 1.0f;
+
+	for (int i = 0; i < argc; i++)
+	{
+		if (strcmp(argv[i], "-m") == 0 && (i + 1 < argc))
+		{
+			defaultMetallicFactor = clampf(std::stof(argv[i + 1]), 0.0f, 1.0f);
+		}
+		else if (strcmp(argv[i], "-r") == 0 && (i + 1 < argc))
+		{
+			defaultRoughnessFactor = clampf(std::stof(argv[i + 1]), 0.0f, 1.0f);
+		}
+	}
+
+	//
 
 	std::string stem = "pbr";
 
@@ -203,10 +229,10 @@ int main(int argc, char *argv[])
 			{
 				for (size_t x = 0; x < baseColorImage.width; x++)
 				{
-					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels  + x * baseColorImage.channels + 0] = 255;
-					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels  + x * baseColorImage.channels + 1] = 255;
-					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels  + x * baseColorImage.channels + 2] = 255;
-					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels  + x * baseColorImage.channels + 3] = 255;
+					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels + x * baseColorImage.channels + 0] = 255;
+					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels + x * baseColorImage.channels + 1] = 255;
+					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels + x * baseColorImage.channels + 2] = 255;
+					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels + x * baseColorImage.channels + 3] = 255;
 				}
 			}
 
@@ -219,10 +245,10 @@ int main(int argc, char *argv[])
 			{
 				for (size_t x = 0; x < metallicRoughnessImage.width; x++)
 				{
-					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels  + x * metallicRoughnessImage.channels + 0] = 255;
-					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels  + x * metallicRoughnessImage.channels + 1] = 255;
-					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels  + x * metallicRoughnessImage.channels + 2] = 255;
-					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels  + x * metallicRoughnessImage.channels + 3] = 255;
+					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels + x * metallicRoughnessImage.channels + 0] = 255;
+					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels + x * metallicRoughnessImage.channels + 1] = 255;
+					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels + x * metallicRoughnessImage.channels + 2] = 255;
+					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels + x * metallicRoughnessImage.channels + 3] = 255;
 				}
 			}
 
@@ -252,9 +278,9 @@ int main(int argc, char *argv[])
 			{
 				for (size_t x = 0; x < baseColorImage.width; x++)
 				{
-					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels  + x * baseColorImage.channels + 0] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels  + x * imageDataResource.channels + 0];
-					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels  + x * baseColorImage.channels + 1] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels  + x * imageDataResource.channels + 1];
-					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels  + x * baseColorImage.channels + 2] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels  + x * imageDataResource.channels + 2];
+					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels + x * baseColorImage.channels + 0] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
+					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels + x * baseColorImage.channels + 1] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 1];
+					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels + x * baseColorImage.channels + 2] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 2];
 				}
 			}
 
@@ -268,7 +294,7 @@ int main(int argc, char *argv[])
 			{
 				for (size_t x = 0; x < baseColorImage.width; x++)
 				{
-					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels  + x * baseColorImage.channels + 3] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels  + x * imageDataResource.channels + 0];
+					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels + x * baseColorImage.channels + 3] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
 				}
 			}
 
@@ -282,7 +308,7 @@ int main(int argc, char *argv[])
 			{
 				for (size_t x = 0; x < metallicRoughnessImage.width; x++)
 				{
-					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels  + x * metallicRoughnessImage.channels + 2] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels  + x * imageDataResource.channels + 0];
+					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels + x * metallicRoughnessImage.channels + 2] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
 				}
 			}
 
@@ -296,7 +322,7 @@ int main(int argc, char *argv[])
 			{
 				for (size_t x = 0; x < metallicRoughnessImage.width; x++)
 				{
-					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels  + x * metallicRoughnessImage.channels + 1] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels  + x * imageDataResource.channels + 0];
+					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels + x * metallicRoughnessImage.channels + 1] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
 				}
 			}
 
@@ -310,7 +336,7 @@ int main(int argc, char *argv[])
 			{
 				for (size_t x = 0; x < metallicRoughnessImage.width; x++)
 				{
-					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels  + x * metallicRoughnessImage.channels + 0] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels  + x * imageDataResource.channels + 0];
+					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels + x * metallicRoughnessImage.channels + 0] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
 				}
 			}
 
@@ -324,9 +350,9 @@ int main(int argc, char *argv[])
 			{
 				for (size_t x = 0; x < normalImage.width; x++)
 				{
-					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 0] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels  + x * imageDataResource.channels + 0];
-					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 1] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels  + x * imageDataResource.channels + 1];
-					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 2] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels  + x * imageDataResource.channels + 2];
+					normalImage.pixels.data()[y * normalImage.width * normalImage.channels + x * normalImage.channels + 0] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
+					normalImage.pixels.data()[y * normalImage.width * normalImage.channels + x * normalImage.channels + 1] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 1];
+					normalImage.pixels.data()[y * normalImage.width * normalImage.channels + x * normalImage.channels + 2] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 2];
 				}
 			}
 
@@ -387,11 +413,11 @@ int main(int argc, char *argv[])
 
 		if (!writeMetallic)
 		{
-			pbrMetallicRoughness["metallicFactor"] = 0.0f;
+			pbrMetallicRoughness["metallicFactor"] = defaultMetallicFactor;
 		}
 		if (!writeRoughness)
 		{
-			pbrMetallicRoughness["roughnessFactor"] = 0.0f;
+			pbrMetallicRoughness["roughnessFactor"] = defaultRoughnessFactor;
 		}
 
 		pbrMetallicRoughness["metallicRoughnessTexture"] = metallicRoughnessTexture;
