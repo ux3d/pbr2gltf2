@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
 
 			normalImage.width = imageDataResource.width;
 			normalImage.height = imageDataResource.height;
-			normalImage.channels = 4;
+			normalImage.channels = 3;
 			normalImage.pixels.resize(normalImage.channels * normalImage.width * normalImage.height);
 
 			for (size_t y = 0; y < normalImage.height; y++)
@@ -238,7 +238,6 @@ int main(int argc, char *argv[])
 					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 0] = 0;
 					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 1] = 128;
 					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 2] = 0;
-					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 3] = 255;
 				}
 			}
 
@@ -346,7 +345,7 @@ int main(int argc, char *argv[])
     if (writeBaseColor || writeOpacity)
     {
 		std::string imagePath = stem + "_baseColor.png";
-		stbi_write_png(imagePath.c_str(), baseColorImage.width, baseColorImage.height, baseColorImage.channels, baseColorImage.pixels.data(), 0);
+		stbi_write_png(imagePath.c_str(), baseColorImage.width, baseColorImage.height, baseColorImage.channels, baseColorImage.pixels.data(), baseColorImage.channels * baseColorImage.width);
 
 		size_t index = textures.size();
 
@@ -377,7 +376,7 @@ int main(int argc, char *argv[])
     if (writeMetallic || writeRoughness || writeOcclusion)
     {
 		std::string imagePath = stem + "_metallicRoughness.png";
-		stbi_write_png(imagePath.c_str(), metallicRoughnessImage.width, metallicRoughnessImage.height, metallicRoughnessImage.channels, metallicRoughnessImage.pixels.data(), 0);
+		stbi_write_png(imagePath.c_str(), metallicRoughnessImage.width, metallicRoughnessImage.height, metallicRoughnessImage.channels, metallicRoughnessImage.pixels.data(), metallicRoughnessImage.channels * metallicRoughnessImage.width);
 
 		size_t index = textures.size();
 
@@ -419,7 +418,7 @@ int main(int argc, char *argv[])
     if (writeNormal)
     {
 		std::string imagePath = stem + "_normal.png";
-		stbi_write_png(imagePath.c_str(), normalImage.width, normalImage.height, normalImage.channels, normalImage.pixels.data(), 0);
+		stbi_write_png(imagePath.c_str(), normalImage.width, normalImage.height, normalImage.channels, normalImage.pixels.data(), normalImage.channels * normalImage.width);
 
 		size_t index = textures.size();
 
