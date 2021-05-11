@@ -43,7 +43,7 @@ bool loadImage(ImageDataResource& imageDataResource, const std::string& filename
 	int x = 0;
 	int y = 0;
 	int comp = 0;
-	int req_comp = 4;
+	int req_comp = 0;
 
 	uint8_t* tempData = static_cast<uint8_t*>(stbi_load(filename.c_str(), &x, &y, &comp, req_comp));
 	if (!tempData)
@@ -53,7 +53,7 @@ bool loadImage(ImageDataResource& imageDataResource, const std::string& filename
 
 	imageDataResource.width = static_cast<uint32_t>(x);
 	imageDataResource.height = static_cast<uint32_t>(y);
-	imageDataResource.channels = 4;
+	imageDataResource.channels = static_cast<uint32_t>(comp);
 	imageDataResource.pixels.resize(imageDataResource.width * imageDataResource.height * imageDataResource.channels);
 	memcpy(imageDataResource.pixels.data(), tempData, imageDataResource.width * imageDataResource.height * imageDataResource.channels);
 
@@ -228,10 +228,19 @@ int main(int argc, char *argv[])
 
 			normalImage.width = imageDataResource.width;
 			normalImage.height = imageDataResource.height;
-			normalImage.channels = 3;
+			normalImage.channels = 4;
 			normalImage.pixels.resize(normalImage.channels * normalImage.width * normalImage.height);
 
-			// Not initialization required
+			for (size_t y = 0; y < normalImage.height; y++)
+			{
+				for (size_t x = 0; x < normalImage.width; x++)
+				{
+					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 0] = 0;
+					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 1] = 128;
+					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 2] = 0;
+					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 3] = 255;
+				}
+			}
 
     		init = false;
     	}
