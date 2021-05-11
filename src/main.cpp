@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
@@ -31,6 +32,13 @@ float clampf(float x, float minVal, float maxVal)
 	float t = (x > minVal) ? x : minVal;
 
 	return (t < maxVal) ? t : maxVal;
+}
+
+std::string toLowercase(const std::string& input)
+{
+	std::string result = input;
+	std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+	return result;
 }
 
 void decomposePath(DecomposedPath& decomposedPath, const std::string& path)
@@ -69,7 +77,7 @@ bool loadImage(ImageDataResource& imageDataResource, const std::string& filename
 	return true;
 }
 
-bool openFile(std::string& output, const std::string& filename)
+bool loadFile(std::string& output, const std::string& filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 	if (!file.is_open())
@@ -238,9 +246,17 @@ int main(int argc, char *argv[])
     	DecomposedPath decomposedPath;
     	decomposePath(decomposedPath, filename);
 
+    	std::string lowercaseExtension = toLowercase(decomposedPath.extension);
+    	if (!(lowercaseExtension == ".png" || lowercaseExtension == ".jpg" || lowercaseExtension == ".jpeg"))
+    	{
+    		continue;
+    	}
+
     	ImageDataResource imageDataResource;
     	if (!loadImage(imageDataResource, filename))
     	{
+    		printf("Warning: Skipping image '%s' because could not load size\n", filename.c_str());
+
     		continue;
     	}
 
@@ -290,7 +306,7 @@ int main(int argc, char *argv[])
 
 			if (keepNormalImageData)
 			{
-				// Kepeing original byte date
+				// Keeping original byte date
 			}
 			else
 			{
@@ -310,7 +326,7 @@ int main(int argc, char *argv[])
     	{
     		if ((imageDataResource.width != baseColorImage.width) || (imageDataResource.height != baseColorImage.height))
     		{
-    			printf("Warning: Skipping image '%s'\n", filename.c_str());
+    			printf("Warning: Skipping image '%s' because of size\n", filename.c_str());
 
     			continue;
     		}
@@ -331,6 +347,8 @@ int main(int argc, char *argv[])
 				}
 			}
 
+			printf("Info: Found base color\n");
+
 			writeBaseColor = true;
     	}
 
@@ -344,6 +362,8 @@ int main(int argc, char *argv[])
 					baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels + x * baseColorImage.channels + 3] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
 				}
 			}
+
+			printf("Info: Found alpha\n");
 
 			writeOpacity = true;
     	}
@@ -359,6 +379,8 @@ int main(int argc, char *argv[])
 				}
 			}
 
+			printf("Info: Found metallic\n");
+
 			writeMetallic = true;
     	}
 
@@ -372,6 +394,8 @@ int main(int argc, char *argv[])
 					metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels + x * metallicRoughnessImage.channels + 1] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
 				}
 			}
+
+			printf("Info: Found roughness\n");
 
 			writeRoughness = true;
     	}
@@ -387,6 +411,8 @@ int main(int argc, char *argv[])
 				}
 			}
 
+			printf("Info: Found occlusion\n");
+
 			writeOcclusion = true;
     	}
 
@@ -395,7 +421,7 @@ int main(int argc, char *argv[])
     	{
     		if (keepNormalImageData)
     		{
-    			if (!openFile(normalImageRaw, filename))
+    			if (!loadFile(normalImageRaw, filename))
     			{
     				printf("Error: Could not load image raw '%s'\n", filename.c_str());
 
@@ -416,6 +442,8 @@ int main(int argc, char *argv[])
     				}
     			}
     		}
+
+    		printf("Info: Found normal\n");
 
 			writeNormal = true;
     	}
@@ -506,7 +534,7 @@ int main(int argc, char *argv[])
 
     if (writeNormal)
     {
-		std::string imagePath = stem + "_normal.";
+		std::string imagePath = stem + "_normal";
 		if (keepNormalImageData)
 		{
 			imagePath += normalImageRawExtension;
@@ -520,7 +548,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			imagePath += "png";
+			imagePath += ".png";
 
 			if (!stbi_write_png(imagePath.c_str(), normalImage.width, normalImage.height, normalImage.channels, normalImage.pixels.data(), 0))
 			{
