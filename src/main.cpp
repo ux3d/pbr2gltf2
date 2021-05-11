@@ -69,6 +69,25 @@ bool loadImage(ImageDataResource& imageDataResource, const std::string& filename
 	return true;
 }
 
+bool openFile(std::string& output, const std::string& filename)
+{
+	std::ifstream file(filename, std::ios::ate | std::ios::binary);
+	if (!file.is_open())
+	{
+		return false;
+	}
+
+	size_t fileSize = static_cast<size_t>(file.tellg());
+	file.seekg(0);
+
+	output.resize(fileSize);
+
+	file.read(output.data(), fileSize);
+	file.close();
+
+	return true;
+}
+
 bool saveFile(const std::string& output, const std::string& filename)
 {
 	std::ofstream file(filename, std::ios::binary);
@@ -136,7 +155,7 @@ int main(int argc, char *argv[])
 {
 	if (argc <= 1)
 	{
-		printf("Usage: pbr2gltf2 folder [-m 1.0 -r 1.0]\n");
+		printf("Usage: pbr2gltf2 folder [-m 1.0 -r 1.0 -n true]\n");
 
 		return 0;
 	}
@@ -145,6 +164,7 @@ int main(int argc, char *argv[])
 
 	float defaultMetallicFactor = 1.0f;
 	float defaultRoughnessFactor = 1.0f;
+	bool keepNormalImageData = true;
 
 	for (int i = 0; i < argc; i++)
 	{
@@ -155,6 +175,17 @@ int main(int argc, char *argv[])
 		else if (strcmp(argv[i], "-r") == 0 && (i + 1 < argc))
 		{
 			defaultRoughnessFactor = clampf(std::stof(argv[i + 1]), 0.0f, 1.0f);
+		}
+		else if (strcmp(argv[i], "-n") == 0 && (i + 1 < argc))
+		{
+			if (strcmp(argv[i + 1], "true") == 0)
+			{
+				keepNormalImageData = true;
+			}
+			else if (strcmp(argv[i + 1], "false") == 0)
+			{
+				keepNormalImageData = false;
+			}
 		}
 	}
 
@@ -193,6 +224,9 @@ int main(int argc, char *argv[])
 	ImageDataResource metallicRoughnessImage;
 
 	ImageDataResource normalImage;
+
+	std::string normalImageRaw;
+	std::string normalImageRawExtension;
 
 	std::string path = argv[1];
     for (const auto& directoryEntry : std::filesystem::directory_iterator(path))
@@ -236,6 +270,8 @@ int main(int argc, char *argv[])
 				}
 			}
 
+			//
+
 			metallicRoughnessImage.width = imageDataResource.width;
 			metallicRoughnessImage.height = imageDataResource.height;
 			metallicRoughnessImage.channels = 4;
@@ -252,12 +288,21 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			normalImage.width = imageDataResource.width;
-			normalImage.height = imageDataResource.height;
-			normalImage.channels = 3;
-			normalImage.pixels.resize(normalImage.channels * normalImage.width * normalImage.height);
+			if (keepNormalImageData)
+			{
+				// Kepeing original byte date
+			}
+			else
+			{
+				normalImage.width = imageDataResource.width;
+				normalImage.height = imageDataResource.height;
+				normalImage.channels = 3;
+				normalImage.pixels.resize(normalImage.channels * normalImage.width * normalImage.height);
 
-			// Not required
+				// Not required for normal map
+			}
+
+			//
 
     		init = false;
     	}
@@ -265,6 +310,8 @@ int main(int argc, char *argv[])
     	{
     		if ((imageDataResource.width != baseColorImage.width) || (imageDataResource.height != baseColorImage.height))
     		{
+    			printf("Warning: Skipping image '%s'\n", filename.c_str());
+
     			continue;
     		}
     	}
@@ -346,15 +393,29 @@ int main(int argc, char *argv[])
     	bool hasNormal = (filename.find("_Normal.") != std::string::npos);
     	if (hasNormal)
     	{
-			for (size_t y = 0; y < normalImage.height; y++)
-			{
-				for (size_t x = 0; x < normalImage.width; x++)
-				{
-					normalImage.pixels.data()[y * normalImage.width * normalImage.channels + x * normalImage.channels + 0] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
-					normalImage.pixels.data()[y * normalImage.width * normalImage.channels + x * normalImage.channels + 1] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 1];
-					normalImage.pixels.data()[y * normalImage.width * normalImage.channels + x * normalImage.channels + 2] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 2];
-				}
-			}
+    		if (keepNormalImageData)
+    		{
+    			if (!openFile(normalImageRaw, filename))
+    			{
+    				printf("Error: Could not load image raw '%s'\n", filename.c_str());
+
+    				return -1;
+    			}
+
+    			normalImageRawExtension = decomposedPath.extension;
+    		}
+    		else
+    		{
+    			for (size_t y = 0; y < normalImage.height; y++)
+    			{
+    				for (size_t x = 0; x < normalImage.width; x++)
+    				{
+    					normalImage.pixels.data()[y * normalImage.width * normalImage.channels + x * normalImage.channels + 0] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
+    					normalImage.pixels.data()[y * normalImage.width * normalImage.channels + x * normalImage.channels + 1] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 1];
+    					normalImage.pixels.data()[y * normalImage.width * normalImage.channels + x * normalImage.channels + 2] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 2];
+    				}
+    			}
+    		}
 
 			writeNormal = true;
     	}
@@ -445,12 +506,28 @@ int main(int argc, char *argv[])
 
     if (writeNormal)
     {
-		std::string imagePath = stem + "_normal.png";
-		if (!stbi_write_png(imagePath.c_str(), normalImage.width, normalImage.height, normalImage.channels, normalImage.pixels.data(), 0))
+		std::string imagePath = stem + "_normal.";
+		if (keepNormalImageData)
 		{
-			printf("Error: Could not save image '%s'\n", imagePath.c_str());
+			imagePath += normalImageRawExtension;
 
-			return -1;
+			if (!saveFile(normalImageRaw, imagePath))
+			{
+				printf("Error: Could not save image raw '%s'\n", imagePath.c_str());
+
+				return -1;
+			}
+		}
+		else
+		{
+			imagePath += "png";
+
+			if (!stbi_write_png(imagePath.c_str(), normalImage.width, normalImage.height, normalImage.channels, normalImage.pixels.data(), 0))
+			{
+				printf("Error: Could not save image '%s'\n", imagePath.c_str());
+
+				return -1;
+			}
 		}
 
 		size_t index = textures.size();
