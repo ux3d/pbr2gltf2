@@ -231,15 +231,7 @@ int main(int argc, char *argv[])
 			normalImage.channels = 3;
 			normalImage.pixels.resize(normalImage.channels * normalImage.width * normalImage.height);
 
-			for (size_t y = 0; y < normalImage.height; y++)
-			{
-				for (size_t x = 0; x < normalImage.width; x++)
-				{
-					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 0] = 0;
-					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 1] = 128;
-					normalImage.pixels.data()[y * normalImage.width * normalImage.channels  + x * normalImage.channels + 2] = 0;
-				}
-			}
+			// Not required
 
     		init = false;
     	}
@@ -345,7 +337,12 @@ int main(int argc, char *argv[])
     if (writeBaseColor || writeOpacity)
     {
 		std::string imagePath = stem + "_baseColor.png";
-		stbi_write_png(imagePath.c_str(), baseColorImage.width, baseColorImage.height, baseColorImage.channels, baseColorImage.pixels.data(), baseColorImage.channels * baseColorImage.width);
+		if (!stbi_write_png(imagePath.c_str(), baseColorImage.width, baseColorImage.height, baseColorImage.channels, baseColorImage.pixels.data(), 0))
+		{
+			printf("Error: Could not save image '%s'\n", imagePath.c_str());
+
+			return -1;
+		}
 
 		size_t index = textures.size();
 
@@ -376,7 +373,12 @@ int main(int argc, char *argv[])
     if (writeMetallic || writeRoughness || writeOcclusion)
     {
 		std::string imagePath = stem + "_metallicRoughness.png";
-		stbi_write_png(imagePath.c_str(), metallicRoughnessImage.width, metallicRoughnessImage.height, metallicRoughnessImage.channels, metallicRoughnessImage.pixels.data(), metallicRoughnessImage.channels * metallicRoughnessImage.width);
+		if (!stbi_write_png(imagePath.c_str(), metallicRoughnessImage.width, metallicRoughnessImage.height, metallicRoughnessImage.channels, metallicRoughnessImage.pixels.data(), 0))
+		{
+			printf("Error: Could not save image '%s'\n", imagePath.c_str());
+
+			return -1;
+		}
 
 		size_t index = textures.size();
 
@@ -418,7 +420,12 @@ int main(int argc, char *argv[])
     if (writeNormal)
     {
 		std::string imagePath = stem + "_normal.png";
-		stbi_write_png(imagePath.c_str(), normalImage.width, normalImage.height, normalImage.channels, normalImage.pixels.data(), normalImage.channels * normalImage.width);
+		if (!stbi_write_png(imagePath.c_str(), normalImage.width, normalImage.height, normalImage.channels, normalImage.pixels.data(), 0))
+		{
+			printf("Error: Could not save image '%s'\n", imagePath.c_str());
+
+			return -1;
+		}
 
 		size_t index = textures.size();
 
