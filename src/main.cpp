@@ -126,7 +126,19 @@ size_t gatherStem(const std::string& stem)
 		return result;
 	}
 
+	result = stem.find("_basecolor");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
 	result = stem.find("_Opacity");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_opacity");
 	if (result != std::string::npos)
 	{
 		return result;
@@ -138,7 +150,19 @@ size_t gatherStem(const std::string& stem)
 		return result;
 	}
 
+	result = stem.find("_metallic");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
 	result = stem.find("_Roughness");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_roughness");
 	if (result != std::string::npos)
 	{
 		return result;
@@ -150,7 +174,25 @@ size_t gatherStem(const std::string& stem)
 		return result;
 	}
 
+	result = stem.find("_ambientocclusion");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
 	result = stem.find("_Normal");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_normal");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_emissive");
 	if (result != std::string::npos)
 	{
 		return result;
@@ -163,7 +205,7 @@ int main(int argc, char *argv[])
 {
 	if (argc <= 1)
 	{
-		printf("Usage: pbr2gltf2 folder [-m 1.0 -r 1.0 -n true]\n");
+		printf("Usage: pbr2gltf2 folder [-m 1.0 -r 1.0 -n true -e true]\n");
 
 		return 0;
 	}
@@ -173,6 +215,7 @@ int main(int argc, char *argv[])
 	float defaultMetallicFactor = 1.0f;
 	float defaultRoughnessFactor = 1.0f;
 	bool keepNormalImageData = true;
+	bool keepEmissiveImageData = true;
 
 	for (int i = 0; i < argc; i++)
 	{
@@ -193,6 +236,17 @@ int main(int argc, char *argv[])
 			else if (strcmp(argv[i + 1], "false") == 0)
 			{
 				keepNormalImageData = false;
+			}
+		}
+		else if (strcmp(argv[i], "-e") == 0 && (i + 1 < argc))
+		{
+			if (strcmp(argv[i + 1], "true") == 0)
+			{
+				keepEmissiveImageData = true;
+			}
+			else if (strcmp(argv[i + 1], "false") == 0)
+			{
+				keepEmissiveImageData = false;
 			}
 		}
 	}
@@ -226,6 +280,7 @@ int main(int argc, char *argv[])
 	bool writeRoughness = false;
 	bool writeOcclusion = false;
 	bool writeNormal = false;
+	bool writeEmissive = false;
 
 	ImageDataResource baseColorImage;
 
@@ -235,6 +290,11 @@ int main(int argc, char *argv[])
 
 	std::string normalImageRaw;
 	std::string normalImageRawExtension;
+
+	ImageDataResource emissiveImage;
+
+	std::string emissiveImageRaw;
+	std::string emissiveImageRawExtension;
 
 	std::string path = argv[1];
     for (const auto& directoryEntry : std::filesystem::directory_iterator(path))
@@ -318,6 +378,20 @@ int main(int argc, char *argv[])
 				// Not required for normal map
 			}
 
+			if (keepEmissiveImageData)
+			{
+				// Keeping original byte date
+			}
+			else
+			{
+				emissiveImage.width = imageDataResource.width;
+				emissiveImage.height = imageDataResource.height;
+				emissiveImage.channels = 3;
+				emissiveImage.pixels.resize(emissiveImage.channels * emissiveImage.width * emissiveImage.height);
+
+				// Not required for normal map
+			}
+
 			//
 
     		init = false;
@@ -334,7 +408,7 @@ int main(int argc, char *argv[])
 
     	//
 
-    	bool hasBaseColor = ((filename.find("_Color.") != std::string::npos) || (filename.find("_Base_Color.") != std::string::npos));
+    	bool hasBaseColor = ((filename.find("_Color.") != std::string::npos) || (filename.find("_Base_Color.") != std::string::npos) || (filename.find("_basecolor.") != std::string::npos));
     	if (hasBaseColor)
     	{
 			for (size_t y = 0; y < baseColorImage.height; y++)
@@ -352,7 +426,7 @@ int main(int argc, char *argv[])
 			writeBaseColor = true;
     	}
 
-    	bool hasOpacity = (filename.find("_Opacity.") != std::string::npos);
+    	bool hasOpacity = ((filename.find("_Opacity.") != std::string::npos) || (filename.find("_opacity.") != std::string::npos));
     	if (hasOpacity)
     	{
 			for (size_t y = 0; y < baseColorImage.height; y++)
@@ -368,7 +442,7 @@ int main(int argc, char *argv[])
 			writeOpacity = true;
     	}
 
-    	bool hasMetallic = (filename.find("_Metallic.") != std::string::npos);
+    	bool hasMetallic = ((filename.find("_Metallic.") != std::string::npos) || (filename.find("_metallic.") != std::string::npos));
     	if (hasMetallic)
     	{
 			for (size_t y = 0; y < metallicRoughnessImage.height; y++)
@@ -384,7 +458,7 @@ int main(int argc, char *argv[])
 			writeMetallic = true;
     	}
 
-    	bool hasRoughness = (filename.find("_Roughness.") != std::string::npos);
+    	bool hasRoughness = ((filename.find("_Roughness.") != std::string::npos) || (filename.find("_roughness.") != std::string::npos));
     	if (hasRoughness)
     	{
 			for (size_t y = 0; y < metallicRoughnessImage.height; y++)
@@ -400,7 +474,7 @@ int main(int argc, char *argv[])
 			writeRoughness = true;
     	}
 
-    	bool hasOcclusion = (filename.find("_AO.") != std::string::npos);
+    	bool hasOcclusion = ((filename.find("_AO.") != std::string::npos) || (filename.find("_ambientocclusion.") != std::string::npos));
     	if (hasOcclusion)
     	{
 			for (size_t y = 0; y < metallicRoughnessImage.height; y++)
@@ -416,7 +490,7 @@ int main(int argc, char *argv[])
 			writeOcclusion = true;
     	}
 
-    	bool hasNormal = (filename.find("_Normal.") != std::string::npos);
+    	bool hasNormal = ((filename.find("_Normal.") != std::string::npos) || (filename.find("_normal.") != std::string::npos));
     	if (hasNormal)
     	{
     		if (keepNormalImageData)
@@ -446,6 +520,38 @@ int main(int argc, char *argv[])
     		printf("Info: Found normal\n");
 
 			writeNormal = true;
+    	}
+
+    	bool hasEmissive = (filename.find("_emissive.") != std::string::npos);
+    	if (hasEmissive)
+    	{
+    		if (keepEmissiveImageData)
+    		{
+    			if (!loadFile(emissiveImageRaw, filename))
+    			{
+    				printf("Error: Could not load image raw '%s'\n", filename.c_str());
+
+    				return -1;
+    			}
+
+    			emissiveImageRawExtension = decomposedPath.extension;
+    		}
+    		else
+    		{
+    			for (size_t y = 0; y < emissiveImage.height; y++)
+    			{
+    				for (size_t x = 0; x < emissiveImage.width; x++)
+    				{
+    					emissiveImage.pixels.data()[y * emissiveImage.width * emissiveImage.channels + x * emissiveImage.channels + 0] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
+    					emissiveImage.pixels.data()[y * emissiveImage.width * emissiveImage.channels + x * emissiveImage.channels + 1] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 1];
+    					emissiveImage.pixels.data()[y * emissiveImage.width * emissiveImage.channels + x * emissiveImage.channels + 2] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 2];
+    				}
+    			}
+    		}
+
+    		printf("Info: Found emissive\n");
+
+			writeEmissive = true;
     	}
     }
 
@@ -564,6 +670,54 @@ int main(int argc, char *argv[])
 		normalTexture["index"] = index;
 
 		material["normalTexture"] = normalTexture;
+
+		json texture = json::object();
+		texture["source"] = index;
+		textures.push_back(texture);
+
+		json image = json::object();
+		image["uri"] = imagePath;
+		images.push_back(image);
+    }
+
+    if (writeEmissive)
+    {
+		std::string imagePath = stem + "_emissive";
+		if (keepEmissiveImageData)
+		{
+			imagePath += emissiveImageRawExtension;
+
+			if (!saveFile(emissiveImageRaw, imagePath))
+			{
+				printf("Error: Could not save image raw '%s'\n", imagePath.c_str());
+
+				return -1;
+			}
+		}
+		else
+		{
+			imagePath += ".png";
+
+			if (!stbi_write_png(imagePath.c_str(), emissiveImage.width, emissiveImage.height, emissiveImage.channels, emissiveImage.pixels.data(), 0))
+			{
+				printf("Error: Could not save image '%s'\n", imagePath.c_str());
+
+				return -1;
+			}
+		}
+
+		size_t index = textures.size();
+
+		json emissiveTexture = json::object();
+		emissiveTexture["index"] = index;
+
+		material["emissiveTexture"] = emissiveTexture;
+
+		json emissiveFactor =  json::array();
+		emissiveFactor.push_back(1.0f);
+		emissiveFactor.push_back(1.0f);
+		emissiveFactor.push_back(1.0f);
+		material["emissiveFactor"] = emissiveFactor;
 
 		json texture = json::object();
 		texture["source"] = index;
