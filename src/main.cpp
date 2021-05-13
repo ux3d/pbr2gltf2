@@ -132,6 +132,18 @@ size_t gatherStem(const std::string& stem)
 		return result;
 	}
 
+	result = stem.find("_Base Color");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_diffuse");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
 	result = stem.find("_Opacity");
 	if (result != std::string::npos)
 	{
@@ -168,6 +180,12 @@ size_t gatherStem(const std::string& stem)
 		return result;
 	}
 
+	result = stem.find("_rough");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
 	result = stem.find("_AO");
 	if (result != std::string::npos)
 	{
@@ -187,6 +205,12 @@ size_t gatherStem(const std::string& stem)
 	}
 
 	result = stem.find("_normal");
+	if (result != std::string::npos)
+	{
+		return result;
+	}
+
+	result = stem.find("_nor");
 	if (result != std::string::npos)
 	{
 		return result;
@@ -408,7 +432,7 @@ int main(int argc, char *argv[])
 
     	//
 
-    	bool hasBaseColor = ((filename.find("_Color.") != std::string::npos) || (filename.find("_Base_Color.") != std::string::npos) || (filename.find("_basecolor.") != std::string::npos));
+    	bool hasBaseColor = ((filename.find("_Color.") != std::string::npos) || (filename.find("_Base_Color.") != std::string::npos) || (filename.find("_basecolor.") != std::string::npos) || (filename.find("_diffuse_") != std::string::npos) || (filename.find("_Base Color.") != std::string::npos));
     	if (hasBaseColor)
     	{
 			for (size_t y = 0; y < baseColorImage.height; y++)
@@ -458,7 +482,7 @@ int main(int argc, char *argv[])
 			writeMetallic = true;
     	}
 
-    	bool hasRoughness = ((filename.find("_Roughness.") != std::string::npos) || (filename.find("_roughness.") != std::string::npos));
+    	bool hasRoughness = ((filename.find("_Roughness.") != std::string::npos) || (filename.find("_roughness.") != std::string::npos) || (filename.find("_rough_") != std::string::npos));
     	if (hasRoughness)
     	{
 			for (size_t y = 0; y < metallicRoughnessImage.height; y++)
@@ -474,7 +498,7 @@ int main(int argc, char *argv[])
 			writeRoughness = true;
     	}
 
-    	bool hasOcclusion = ((filename.find("_AO.") != std::string::npos) || (filename.find("_ambientocclusion.") != std::string::npos));
+    	bool hasOcclusion = ((filename.find("_AO.") != std::string::npos) || (filename.find("_ambientocclusion.") != std::string::npos) || (filename.find("_AO_") != std::string::npos));
     	if (hasOcclusion)
     	{
 			for (size_t y = 0; y < metallicRoughnessImage.height; y++)
@@ -490,7 +514,7 @@ int main(int argc, char *argv[])
 			writeOcclusion = true;
     	}
 
-    	bool hasNormal = ((filename.find("_Normal.") != std::string::npos) || (filename.find("_normal.") != std::string::npos));
+    	bool hasNormal = ((filename.find("_Normal.") != std::string::npos) || (filename.find("_normal.") != std::string::npos) || (filename.find("_nor_") != std::string::npos));
     	if (hasNormal)
     	{
     		if (keepNormalImageData)
