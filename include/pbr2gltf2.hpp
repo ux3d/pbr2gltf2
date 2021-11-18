@@ -4,7 +4,7 @@
 #include <string>
 
 namespace pbr2gltf2 {
-int convert_to_filesystem(const std::string& path, float defaultMetallicFactor, float defaultRoughnessFactor, bool keepNormalImageData, bool keepEmissiveImageData);
+int convert_to_filesystem(const std::string& pbrPath, const std::string& gltfPath, float defaultMetallicFactor, float defaultRoughnessFactor, bool keepNormalImageData, bool keepEmissiveImageData);
 }
 
 #endif // PBR2GLTF2_H

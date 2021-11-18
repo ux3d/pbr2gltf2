@@ -50,19 +50,21 @@ std::string toLowercase(const std::string& input)
     return result;
 }
 
-void decomposePath(DecomposedPath& decomposedPath, const std::string& path)
+DecomposedPath decomposePath(const std::string& path)
 {
     fs::path filesystemPath(path);
+    DecomposedPath decomposedPath;
 
     decomposedPath.parentPath = filesystemPath.parent_path().generic_string();
     decomposedPath.stem = filesystemPath.stem().generic_string();
     decomposedPath.extension = filesystemPath.extension().generic_string();
+
+    return decomposedPath;
 }
 
 bool loadImage(ImageDataResource& imageDataResource, const std::string& filename)
 {
-    DecomposedPath decomposedPath;
-    decomposePath(decomposedPath, filename);
+    DecomposedPath decomposedPath = decomposePath(filename);
 
     int x = 0;
     int y = 0;
@@ -188,7 +190,7 @@ size_t gatherStem(const std::string& stem)
     return result;
 }
 
-int pbr2gltf2::convert(const std::string& path, float defaultMetallicFactor, float defaultRoughnessFactor, bool keepNormalImageData, bool keepEmissiveImageData)
+int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::string& gltfPath, float defaultMetallicFactor, float defaultRoughnessFactor, bool keepNormalImageData, bool keepEmissiveImageData)
 {
     std::string stem = "pbr";
 
@@ -233,13 +235,12 @@ int pbr2gltf2::convert(const std::string& path, float defaultMetallicFactor, flo
     std::string emissiveImageRaw;
     std::string emissiveImageRawExtension;
 
-    for (const auto& directoryEntry : fs::directory_iterator(path)) {
+    for (const auto& directoryEntry : fs::directory_iterator(pbrPath)) {
         std::string filename = directoryEntry.path().generic_string();
 
         printf("Info: Processing '%s'\n", filename.c_str());
 
-        DecomposedPath decomposedPath;
-        decomposePath(decomposedPath, filename);
+        DecomposedPath decomposedPath = decomposePath(filename);
 
         std::string lowercaseExtension = toLowercase(decomposedPath.extension);
         if (!(lowercaseExtension == ".png" || lowercaseExtension == ".jpg" || lowercaseExtension == ".jpeg")) {
