@@ -20,7 +20,12 @@ target_include_directories(P2G2
     PRIVATE "thirdparty/filesystem/include"
 )
 
+set_target_properties(P2G2
+    PROPERTIES
+    PUBLIC_HEADER "include/pbr2gltf2.hpp"
+)
+
 add_executable(pbr2gltf2 src/main.cpp)
 target_link_libraries(pbr2gltf2 P2G2)
 
-install(TARGETS P2G2 pbr2gltf2 PUBLIC_HEADER DESTINATION "include")
+install(TARGETS P2G2 pbr2gltf2)
