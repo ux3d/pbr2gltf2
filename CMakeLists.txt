@@ -13,5 +13,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 include_directories("thirdparty/json/include")
 include_directories("thirdparty/stb")
+include_directories("thirdparty/filesystem/include")
 
 add_executable(pbr2gltf2 src/main.cpp)

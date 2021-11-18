@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cstdio>
-#include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -11,6 +10,21 @@
 #include <stb_image.h>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
+
+#ifdef __APPLE__
+#include <Availability.h> // for deployment target to support pre-catalina targets without std::fs
+#endif
+#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || (defined(__cplusplus) && __cplusplus >= 201703L)) && defined(__has_include)
+#if __has_include(<filesystem>) && (!defined(__MAC_OS_X_VERSION_MIN_REQUIRED) || __MAC_OS_X_VERSION_MIN_REQUIRED >= 101500)
+#define GHC_USE_STD_FS
+#include <filesystem>
+namespace fs = std::filesystem;
+#endif
+#endif
+#ifndef GHC_USE_STD_FS
+#include <ghc/filesystem.hpp>
+namespace fs = ghc::filesystem;
+#endif
 
 using json = nlohmann::json;
 
@@ -43,7 +57,7 @@ std::string toLowercase(const std::string& input)
 
 void decomposePath(DecomposedPath& decomposedPath, const std::string& path)
 {
-    std::filesystem::path filesystemPath(path);
+    fs::path filesystemPath(path);
 
     decomposedPath.parentPath = filesystemPath.parent_path().generic_string();
     decomposedPath.stem = filesystemPath.stem().generic_string();
@@ -260,7 +274,7 @@ int main(int argc, char* argv[])
     std::string emissiveImageRawExtension;
 
     std::string path = argv[1];
-    for (const auto& directoryEntry : std::filesystem::directory_iterator(path)) {
+    for (const auto& directoryEntry : fs::directory_iterator(path)) {
         std::string filename = directoryEntry.path().generic_string();
 
         printf("Info: Processing '%s'\n", filename.c_str());
