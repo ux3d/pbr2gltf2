@@ -22,3 +22,5 @@ target_include_directories(Pbr2Gltf2
 
 add_executable(pbr2gltf2 src/main.cpp)
 target_link_libraries(pbr2gltf2 Pbr2Gltf2)
+
+install(TARGETS Pbr2Gltf2 pbr2gltf2)
