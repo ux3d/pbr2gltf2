@@ -12,8 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 
-add_library(Pbr2Gltf2 src/pbr2gltf2.cpp include/pbr2gltf2.hpp)
-target_include_directories(Pbr2Gltf2 
+add_library(P2G2 src/pbr2gltf2.cpp include/pbr2gltf2.hpp)
+target_include_directories(P2G2 
     PUBLIC "include"
     PRIVATE "thirdparty/json/include"
     PRIVATE "thirdparty/stb"
@@ -21,4 +21,4 @@ target_include_directories(Pbr2Gltf2
 )
 
 add_executable(pbr2gltf2 src/main.cpp)
-target_link_libraries(pbr2gltf2 Pbr2Gltf2)
+target_link_libraries(pbr2gltf2 P2G2)
