@@ -47,5 +47,5 @@ int main(int argc, char* argv[])
 
     std::string path = argv[1];
 
-    pbr2gltf2::convert_to_filesystem(path, "", defaultMetallicFactor, defaultRoughnessFactor, keepNormalImageData, keepEmissiveImageData);
+    pbr2gltf2::convert_to_filesystem(path, ".", defaultMetallicFactor, defaultRoughnessFactor, keepNormalImageData, keepEmissiveImageData);
 }

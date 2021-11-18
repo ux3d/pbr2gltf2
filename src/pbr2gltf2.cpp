@@ -446,7 +446,7 @@ int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::stri
     }
 
     if (writeBaseColor || writeOpacity) {
-        std::string imagePath = stem + "_baseColor.png";
+        std::string imagePath = gltfPath + "/" + stem + "_baseColor.png";
         if (!stbi_write_png(imagePath.c_str(), baseColorImage.width, baseColorImage.height, baseColorImage.channels, baseColorImage.pixels.data(), 0)) {
             printf("Error: Could not save image '%s'\n", imagePath.c_str());
 
@@ -477,7 +477,7 @@ int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::stri
     }
 
     if (writeMetallic || writeRoughness || writeOcclusion) {
-        std::string imagePath = stem + "_metallicRoughness.png";
+        std::string imagePath = gltfPath + "/" + stem + "_metallicRoughness.png";
         if (!stbi_write_png(imagePath.c_str(), metallicRoughnessImage.width, metallicRoughnessImage.height, metallicRoughnessImage.channels, metallicRoughnessImage.pixels.data(), 0)) {
             printf("Error: Could not save image '%s'\n", imagePath.c_str());
 
@@ -517,7 +517,7 @@ int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::stri
     }
 
     if (writeNormal) {
-        std::string imagePath = stem + "_normal";
+        std::string imagePath = gltfPath + "/" + stem + "_normal";
         if (keepNormalImageData) {
             imagePath += normalImageRawExtension;
 
@@ -553,7 +553,7 @@ int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::stri
     }
 
     if (writeEmissive) {
-        std::string imagePath = stem + "_emissive";
+        std::string imagePath = gltfPath + "/" + stem + "_emissive";
         if (keepEmissiveImageData) {
             imagePath += emissiveImageRawExtension;
 
@@ -609,7 +609,7 @@ int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::stri
 
     //
 
-    std::string savename = stem + ".gltf";
+    std::string savename = gltfPath + "/" + stem + ".gltf";
 
     if (!saveFile(glTF.dump(3), savename)) {
         printf("Error: Could not save '%s'\n", savename.c_str());
