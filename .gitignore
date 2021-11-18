@@ -39,3 +39,4 @@
 *.jpg
 /vscode_build
 /.vscode
+.DS_Store
