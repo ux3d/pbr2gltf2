@@ -10,7 +10,7 @@ project(pbr2gltf2)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 add_library(P2G2 src/pbr2gltf2.cpp include/pbr2gltf2.hpp)
 target_include_directories(P2G2 
