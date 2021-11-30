@@ -43,6 +43,75 @@ struct ImageDataResource {
     uint32_t channels = 0;
 };
 
+static const std::vector<std::string>& getBaseColorTokens()
+{
+	static const std::vector<std::string> tokens = {
+		    "_color",
+			"_base_color",
+		    "_basecolor",
+		    "_base color"
+	};
+
+	return tokens;
+}
+
+static const std::vector<std::string>& getAlphaTokens()
+{
+	static const std::vector<std::string> tokens = {
+			"_opacity"
+	};
+
+	return tokens;
+}
+
+static const std::vector<std::string>& getMetallicTokens()
+{
+	static const std::vector<std::string> tokens = {
+			"_metallic"
+	};
+
+	return tokens;
+}
+
+static const std::vector<std::string>& getRoughnessTokens()
+{
+	static const std::vector<std::string> tokens = {
+		    "_roughness",
+		    "_rough"
+	};
+
+	return tokens;
+}
+
+static const std::vector<std::string>& getAmbientOcclusionTokens()
+{
+	static const std::vector<std::string> tokens = {
+		    "_ao",
+		    "_ambientocclusion"
+	};
+
+	return tokens;
+}
+
+static const std::vector<std::string>& getNormalTokens()
+{
+	static const std::vector<std::string> tokens = {
+		    "_normal",
+		    "_nor"
+	};
+
+	return tokens;
+}
+
+static const std::vector<std::string>& getEmissiveTokens()
+{
+	static const std::vector<std::string> tokens = {
+		    "_emissive"
+	};
+
+	return tokens;
+}
+
 std::string toLowercase(const std::string& input)
 {
     std::string result = input;
@@ -121,73 +190,79 @@ bool saveFile(const std::string& output, const std::string& filename)
 size_t gatherStem(const std::string& stem)
 {
     size_t result = std::string::npos;
+    std::string lowercaseStem = toLowercase(stem);
 
-    result = toLowercase(stem).find("_color");
-    if (result != std::string::npos) {
-        return result;
+    for (auto& s : getBaseColorTokens())
+    {
+        result = lowercaseStem.find(s);
+        if (result != std::string::npos) {
+            return result;
+        }
     }
 
-    result = toLowercase(stem).find("_base_color");
-    if (result != std::string::npos) {
-        return result;
+    for (auto& s : getAlphaTokens())
+    {
+        result = lowercaseStem.find(s);
+        if (result != std::string::npos) {
+            return result;
+        }
     }
 
-    result = toLowercase(stem).find("_basecolor");
-    if (result != std::string::npos) {
-        return result;
+    for (auto& s : getMetallicTokens())
+    {
+        result = lowercaseStem.find(s);
+        if (result != std::string::npos) {
+            return result;
+        }
     }
 
-    result = toLowercase(stem).find("_base color");
-    if (result != std::string::npos) {
-        return result;
+    for (auto& s : getRoughnessTokens())
+    {
+        result = lowercaseStem.find(s);
+        if (result != std::string::npos) {
+            return result;
+        }
     }
 
-    result = toLowercase(stem).find("_opacity");
-    if (result != std::string::npos) {
-        return result;
+    for (auto& s : getAmbientOcclusionTokens())
+    {
+        result = lowercaseStem.find(s);
+        if (result != std::string::npos) {
+            return result;
+        }
     }
 
-    result = toLowercase(stem).find("_metallic");
-    if (result != std::string::npos) {
-        return result;
+    for (auto& s : getNormalTokens())
+    {
+        result = lowercaseStem.find(s);
+        if (result != std::string::npos) {
+            return result;
+        }
     }
 
-    result = toLowercase(stem).find("_roughness");
-    if (result != std::string::npos) {
-        return result;
-    }
-
-    result = toLowercase(stem).find("_rough");
-    if (result != std::string::npos) {
-        return result;
-    }
-
-    result = toLowercase(stem).find("_ao");
-    if (result != std::string::npos) {
-        return result;
-    }
-
-    result = toLowercase(stem).find("_ambientocclusion");
-    if (result != std::string::npos) {
-        return result;
-    }
-
-    result = toLowercase(stem).find("_normal");
-    if (result != std::string::npos) {
-        return result;
-    }
-
-    result = toLowercase(stem).find("_nor");
-    if (result != std::string::npos) {
-        return result;
-    }
-
-    result = toLowercase(stem).find("_emissive");
-    if (result != std::string::npos) {
-        return result;
+    for (auto& s : getEmissiveTokens())
+    {
+        result = lowercaseStem.find(s);
+        if (result != std::string::npos) {
+            return result;
+        }
     }
 
     return result;
+}
+
+bool hasToken(const std::string& t, const std::vector<std::string>& v)
+{
+	std::string lt = toLowercase(t);
+
+    for (auto& s : v)
+    {
+        if (lt.find(s) != std::string::npos) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::string& gltfPath, float defaultMetallicFactor, float defaultRoughnessFactor, bool keepNormalImageData, bool keepEmissiveImageData)
@@ -327,7 +402,7 @@ int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::stri
 
         //
 
-        bool hasBaseColor = ((toLowercase(filename).find("_color.") != std::string::npos) || (toLowercase(filename).find("_base_color.") != std::string::npos) || (toLowercase(filename).find("_basecolor.") != std::string::npos) || (toLowercase(filename).find("_base color.") != std::string::npos));
+        bool hasBaseColor = hasToken(filename, getBaseColorTokens());
         if (hasBaseColor) {
             for (size_t y = 0; y < baseColorImage.height; y++) {
                 for (size_t x = 0; x < baseColorImage.width; x++) {
@@ -342,8 +417,8 @@ int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::stri
             writeBaseColor = true;
         }
 
-        bool hasOpacity = (toLowercase(filename).find("_opacity.") != std::string::npos);
-        if (hasOpacity) {
+        bool hasAlpha = hasToken(filename, getAlphaTokens());
+        if (hasAlpha) {
             for (size_t y = 0; y < baseColorImage.height; y++) {
                 for (size_t x = 0; x < baseColorImage.width; x++) {
                     baseColorImage.pixels.data()[y * baseColorImage.width * baseColorImage.channels + x * baseColorImage.channels + 3] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
@@ -355,7 +430,7 @@ int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::stri
             writeOpacity = true;
         }
 
-        bool hasMetallic = (toLowercase(filename).find("_metallic.") != std::string::npos);
+        bool hasMetallic = hasToken(filename, getMetallicTokens());
         if (hasMetallic) {
             for (size_t y = 0; y < metallicRoughnessImage.height; y++) {
                 for (size_t x = 0; x < metallicRoughnessImage.width; x++) {
@@ -368,7 +443,7 @@ int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::stri
             writeMetallic = true;
         }
 
-        bool hasRoughness = ((toLowercase(filename).find("_roughness.") != std::string::npos) || (toLowercase(filename).find("_rough_") != std::string::npos));
+        bool hasRoughness = hasToken(filename, getRoughnessTokens());
         if (hasRoughness) {
             for (size_t y = 0; y < metallicRoughnessImage.height; y++) {
                 for (size_t x = 0; x < metallicRoughnessImage.width; x++) {
@@ -381,20 +456,20 @@ int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::stri
             writeRoughness = true;
         }
 
-        bool hasOcclusion = ((toLowercase(filename).find("_ao.") != std::string::npos) || (toLowercase(filename).find("_ambientocclusion.") != std::string::npos) || (toLowercase(filename).find("_ao_") != std::string::npos));
-        if (hasOcclusion) {
+        bool hasAmbientOcclusion = hasToken(filename, getAmbientOcclusionTokens());
+        if (hasAmbientOcclusion) {
             for (size_t y = 0; y < metallicRoughnessImage.height; y++) {
                 for (size_t x = 0; x < metallicRoughnessImage.width; x++) {
                     metallicRoughnessImage.pixels.data()[y * metallicRoughnessImage.width * metallicRoughnessImage.channels + x * metallicRoughnessImage.channels + 0] = imageDataResource.pixels.data()[y * imageDataResource.width * imageDataResource.channels + x * imageDataResource.channels + 0];
                 }
             }
 
-            printf("Info: Found occlusion\n");
+            printf("Info: Found ambient occlusion\n");
 
             writeOcclusion = true;
         }
 
-        bool hasNormal = ((toLowercase(filename).find("_normal.") != std::string::npos) || (toLowercase(filename).find("_nor_") != std::string::npos));
+        bool hasNormal = hasToken(filename, getNormalTokens());
         if (hasNormal) {
             if (keepNormalImageData) {
                 if (!loadFile(normalImageRaw, filename)) {
@@ -419,7 +494,7 @@ int pbr2gltf2::convert_to_filesystem(const std::string& pbrPath, const std::stri
             writeNormal = true;
         }
 
-        bool hasEmissive = (toLowercase(filename).find("_emissive.") != std::string::npos);
+        bool hasEmissive = hasToken(filename, getEmissiveTokens());
         if (hasEmissive) {
             if (keepEmissiveImageData) {
                 if (!loadFile(emissiveImageRaw, filename)) {
