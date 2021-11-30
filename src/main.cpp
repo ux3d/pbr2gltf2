@@ -1,7 +1,8 @@
 #include "pbr2gltf2.hpp"
+
 #include <cstdio>
+#include <cstring>
 #include <fstream>
-#include <string>
 
 float clampf(float x, float minVal, float maxVal)
 {
