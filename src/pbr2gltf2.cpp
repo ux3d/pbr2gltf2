@@ -49,7 +49,8 @@ static const std::vector<std::string>& getBaseColorTokens()
 		    "_color",
 			"_base_color",
 		    "_basecolor",
-		    "_base color"
+		    "_base color",
+			"_base"
 	};
 
 	return tokens;
@@ -58,7 +59,8 @@ static const std::vector<std::string>& getBaseColorTokens()
 static const std::vector<std::string>& getAlphaTokens()
 {
 	static const std::vector<std::string> tokens = {
-			"_opacity"
+			"_opacity",
+			"_alpha"
 	};
 
 	return tokens;
@@ -67,7 +69,8 @@ static const std::vector<std::string>& getAlphaTokens()
 static const std::vector<std::string>& getMetallicTokens()
 {
 	static const std::vector<std::string> tokens = {
-			"_metallic"
+			"_metallic",
+			"_mtl"
 	};
 
 	return tokens;
@@ -97,7 +100,8 @@ static const std::vector<std::string>& getNormalTokens()
 {
 	static const std::vector<std::string> tokens = {
 		    "_normal",
-		    "_nor"
+		    "_nor",
+			"_nrm"
 	};
 
 	return tokens;
