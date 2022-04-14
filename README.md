@@ -25,6 +25,7 @@ Usage: `pbr2gltf2.exe folder [-m 1.0 -r 1.0 -n true -e true]`
 * [https://cgbookcase.com/](https://cgbookcase.com/) Free PBR Textures
 * [https://gametextures.com/](https://gametextures.com/) PBR Generic
 * [https://sharetextures.com/](https://sharetextures.com/) Free PBR Textures
+* [https://www.u3m.info/](https://www.u3m.info/) U3M – Unified 3D Material
 
 
 ## Import the generated glTF
