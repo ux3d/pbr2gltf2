@@ -13,10 +13,19 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 add_library(P2G2 src/pbr2gltf2.cpp include/pbr2gltf2.hpp)
+
+find_package(stb)
+if (${stb_FOUND})
+  target_link_libraries(P2G2 PRIVATE stb::stb)
+else()
+  target_include_directories(P2G2 
+      PRIVATE "thirdparty/stb"
+)
+endif()
+
 target_include_directories(P2G2 
     PUBLIC "include"
     PRIVATE "thirdparty/json/include"
-    PRIVATE "thirdparty/stb"
     PRIVATE "thirdparty/filesystem/include"
 )
 
